@@ -8,6 +8,10 @@ const messageContentInput = document.getElementById("message-content");
 
 let userName = '';
 
+const socket = io();
+
+socket.on('message', addMessage);
+
 const login = event => {
   event.preventDefault();
 
@@ -45,10 +49,13 @@ const addMessage = (author, content) => {
 const sendMessage = event => {
   event.preventDefault();
 
-  if (messageContentInput.value === '') {
+  let messageContent = messageContentInput.value;
+
+  if (!messageContent.length) {
     alert('Please type your message');
   } else {
-    addMessage(userName, messageContentInput.value);
+    addMessage(userName, messageContent);
+    socket.emit('message', { author: userName, content: messageContent })
     addMessageForm.reset();
   }
 };
