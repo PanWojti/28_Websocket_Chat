@@ -24,6 +24,13 @@ io.on('connection', (socket) => {
   // Receive userName data from client
   socket.on('join', (user) => {
     users.push({name: user, id: socket.id});
+    const newUserMessage = {
+      author: 'Chat-Bot',
+      content: `<i><b>${user}</b> has joined the conversation!</i>`
+    }
+    messages.push(newUserMessage);
+    // Event listener for message already exists in app.js, no point to add another one
+    socket.broadcast.emit('message', newUserMessage);
   });
   socket.on('message', (message) => {
     console.log('Oh, I\'ve got something from ' + socket.id);
@@ -33,12 +40,23 @@ io.on('connection', (socket) => {
     console.log("users: ", users);
   });
   socket.on('disconnect', () => { console.log('Oh, socket ' + socket.id + ' has left')
-    const removeUser = (user, allUsers) => {
-      if (user.id === socket.id) {
-        users.splice(allUsers, 1);
+    let userLeft = '';
+
+    for (let deletedUser of users) {
+      if (deletedUser.id === socket.id) {
+        const index = users.indexOf(deletedUser);
+        users.splice(index, 1);
+        userLeft = deletedUser.name;
       }
     };
-    users.some(removeUser);
+
+    const userLeftMessage = {
+      author: 'Chat-Bot',
+      content: `<i><b>${userLeft}</b> has left the conversation!</i>`
+    }
+    messages.push(userLeftMessage);
+    socket.broadcast.emit('message', userLeftMessage);
+    console.log('users: ', users);
   });
   console.log('I\'ve added a listener on message and disconnect events \n');
 });
