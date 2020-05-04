@@ -18,6 +18,8 @@ const login = event => {
     userName = userNameInput.value;
     loginForm.classList.remove('show');
     messagesSection.classList.add('show');
+    // Send userName data to server
+    socket.emit('join', userName)
   }
 };
 
